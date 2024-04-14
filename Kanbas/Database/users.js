@@ -1,5 +1,15 @@
 export default [
   {
+    _id: "120",
+    username: "test",
+    password: "test",
+    firstName: "Harry",
+    lastName: "Potter",
+    email: "harry@hogwarts.com",
+    dob: "1980-07-31",
+    role: "STUDENT",
+  },
+  {
     _id: "121",
     username: "the_boy_who_lived",
     password: "scar123",
