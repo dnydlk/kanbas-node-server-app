@@ -12,7 +12,7 @@ import UserRoutes from "./Users/routes.js"
 // Load environment variables from the .env file
 import "dotenv/config"
 
-const CONNECTION_STRING = process.env.MONGODB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
+const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
 // Connect to the kanbas MongoDB database
 mongoose.connect(CONNECTION_STRING)
 // todo: Connect to a remote machine hosted by Mongo's Atlas could service
