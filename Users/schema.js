@@ -1,4 +1,5 @@
 import mongoose from "mongoose" // load the mongoose library
+
 const userSchema = new mongoose.Schema( // create the schema
   {
     // _id: String, // String field that is required and unique

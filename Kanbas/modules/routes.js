@@ -1,48 +1,52 @@
-import Database from "../Database/index.js"
+import * as dao from "./dao.js"
+
 export default function ModuleRoutes(app) {
   //- Update a module
-  app.put("/api/modules/:mid", (req, res) => {
+  const updateModule = async (req, res) => {
     const { mid } = req.params
-    const moduleIndex = Database.modules.indexOf((m) => m._id === mid)
-    Database.modules[moduleIndex] = {
-      ...Database.modules[moduleIndex],
-      ...req.body,
-    }
-    res.sendStatus(204)
-  })
+    const module = req.body
+    const updatedModule = await dao.updateModule(mid, module)
+    res.json(updatedModule)
+  }
 
   //- Delete a module
-  app.delete("/api/modules/:mid", (req, res) => {
+  const deleteModule = async (req, res) => {
     const { mid } = req.params
-    const moduleToDelete = Database.modules.find((m) => m._id === mid)
-    if (!moduleToDelete) {
+    const deletedModule = await dao.deleteModule(mid)
+    if (!deletedModule) {
       res.status(404).json({ message: `Unable to delete the module with ID: ${mid}` })
+      return
     }
-    Database.modules.splice(Database.modules.indexOf(moduleToDelete), 1)
     res.sendStatus(200)
-  })
+  }
 
   //- Create a new module
-  app.post("/api/courses/:cid/modules", (req, res) => {
+  const createModule = async (req, res) => {
     const { cid } = req.params
-    const newModule = {
+    const module = {
       ...req.body,
       course: cid,
-      _id: new Date().getTime().toString(),
     }
-    Database.modules.push(newModule)
-    res.send(newModule)
-  })
+    const newModule = await dao.createModule(module)
+    res.json(newModule)
+  }
 
   //- Get modules
-  app.get("/api/courses/:cid/modules", (req, res) => {
+  const getModulesByCourseId = async (req, res) => {
     const { cid } = req.params
-    const modules = Database.modules.filter((m) => m.course === cid)
-    res.send(modules)
-  })
+    const modules = await dao.getModulesByCourseId(cid)
+    res.json(modules)
+  }
 
   //- Get All modules in the database
-  app.get("/api/modules", (req, res) => {
-    res.send(Database.modules)
-  })
+  const getAllModules = async (req, res) => {
+    const modules = await dao.getAllModules()
+    res.json(modules)
+  }
+
+  app.get("/api/courses/:cid/modules", getModulesByCourseId)
+  app.get("/api/modules", getAllModules)
+  app.post("/api/courses/:cid/modules", createModule)
+  app.delete("/api/modules/:mid", deleteModule)
+  app.put("/api/modules/:mid", updateModule)
 }

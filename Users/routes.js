@@ -1,5 +1,4 @@
 import * as dao from "./dao.js"
-// let currentUser = null
 
 export default function UserRoutes(app) {
   const createUser = async (req, res) => {
@@ -35,50 +34,79 @@ export default function UserRoutes(app) {
   const updateUser = async (req, res) => {
     const { userId } = req.params
     const status = await dao.updateUser(userId, req.body)
-    currentUser = await dao.findUserById(userId)
+    req.session.currentUser = await dao.findUserById(userId)
     res.json(status)
+    // try {
+    //   const { userId } = req.params
+    //   const updateResult = await dao.updateUser(userId, req.body)
+    //   if (updateResult.matchedCount === 0) {
+    //     return res.status(404).send("User not found")
+    //   }
+    //   if (updateResult.modifiedCount === 0) {
+    //     return res.status(304).send("No changes made to the user.")
+    //   }
+    //   const updatedUser = await dao.findUserById(req.params.id) // Fetch the updated user if needed
+    //   req.session.currentUser = await dao.findUserById(userId) // Update the session information
+    //   res.json(updatedUser)
+    // } catch (error) {
+    //   console.error("Error updating user:", error)
+    //   res.status(500).send("Error updating user")
+    // }
   }
 
   const signup = async (req, res) => {
+    console.log(`Checking if username ${req.body.username} exists`)
     const user = await dao.findUserByUsername(req.body.username)
+    console.log(`User found: ${user}`)
     if (user) {
-      res.status(400).json({ message: "Username already taken" })
+      console.log(`Username ${req.body.username} already taken`)
+      return res.status(400).json({ message: "Username already taken" }) // Ensure to return here
     }
-    // currentUser = await dao.createUser(req.body)
-    const currentUser = await dao.createUser(req.body)
-    req.session["currentUser"] = currentUser
-    res.json(currentUser)
+    try {
+      const currentUser = await dao.createUser(req.body)
+      req.session["currentUser"] = currentUser
+      console.log("🚀 ~ signup ~ currentUser:", currentUser)
+      res.json(currentUser)
+    } catch (error) {
+      console.error("Unexpected error during user creation", error)
+      if (error.code === 11000) {
+        return res.status(409).json({ message: "Username already exists." })
+      } else {
+        return res.status(500).json({ message: "Internal server error." })
+      }
+    }
   }
 
   const signin = async (req, res) => {
     const { username, password } = req.body
-    // currentUser = await dao.findUserByCredentials(username, password)
     const currentUser = await dao.findUserByCredentials(username, password)
+    console.log("🚀 ~ signin ~ currentUser:", currentUser)
     if (currentUser) {
       req.session["currentUser"] = currentUser
+      console.log("currentUser is the current User")
+      console.log("🚀 ~ signin ~ currentUser:", currentUser)
       res.json(currentUser)
     } else {
       res.sendStatus(401)
     }
-    // res.json(currentUser)
   }
 
   const signout = (req, res) => {
-    // currentUser = null
     req.session.destroy()
     res.sendStatus(200)
   }
 
   const profile = async (req, res) => {
-    // res.json(currentUser)
     const currentUser = req.session["currentUser"]
-    if (!createUser) {
+    console.log("🚀 ~ profile ~ currentUser:", currentUser)
+    if (!currentUser) {
       res.sendStatus(401)
       return
     }
     res.json(currentUser)
   }
 
+  // Routes
   app.post("/api/users", createUser)
   app.get("/api/users", findAllUsers)
   app.get("/api/users/:userId", findUserById)

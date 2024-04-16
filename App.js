@@ -9,10 +9,12 @@ import CourseRoutes from "./Kanbas/courses/routes.js"
 import ModuleRoutes from "./Kanbas/modules/routes.js"
 import AssignmentRoutes from "./Kanbas/assignments/routes.js"
 import UserRoutes from "./Users/routes.js"
+// Load environment variables from the .env file
 import "dotenv/config"
 
+const CONNECTION_STRING = process.env.MONGODB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
 // Connect to the kanbas MongoDB database
-mongoose.connect("mongodb://127.0.0.1:27017/kanbas")
+mongoose.connect(CONNECTION_STRING)
 // todo: Connect to a remote machine hosted by Mongo's Atlas could service
 // create an instance of express
 const app = express()
@@ -44,12 +46,23 @@ app.use(express.json())
 
 // Routes
 UserRoutes(app)
-
-AssignmentRoutes(app)
 ModuleRoutes(app)
 CourseRoutes(app)
+AssignmentRoutes(app)
 
 Hello(app)
 Lab5(app)
+
+app.get("/debug/session", (req, res) => {
+  console.log(req.session) // Logs the entire session object
+  res.send("Session data logged to the server console.")
+})
+app.get("/api/session", (req, res) => {
+  if (req.session) {
+    res.json(req.session)
+  } else {
+    res.status(404).send("No session available")
+  }
+})
 
 app.listen(process.env.PORT || 4000)

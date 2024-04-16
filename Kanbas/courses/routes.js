@@ -1,53 +1,53 @@
-import Database from "../Database/index.js"
+import * as dao from "./dao.js"
+
 export default function CourseRoutes(app) {
-  //- Retrieve a course by id
-  app.get("/api/courses/:id", (req, res) => {
-    const { id } = req.params
-    const course = Database.courses.find((c) => c._id === id)
+  //- Get a course by ID
+  const getCourseById = async (req, res) => {
+    const { cid } = req.params
+    const course = await dao.getCourseById(cid)
     if (!course) {
-      res.status(404).send(`Course not found with ID: ${id}`)
+      res.status(404).json({ message: `Course not found with ID: ${cid}` })
       return
     }
-    res.send(course)
-  })
+    res.json(course)
+  }
 
   //- Update a course
-  app.put("/api/courses/:id", (req, res) => {
+  const updateCourse = async (req, res) => {
     const { id } = req.params
     const course = req.body
-    Database.courses = Database.courses.map((c) => (c._id === id ? { ...c, ...course } : c))
-    //! HTTP 204 No Content status code indicates that a request has been successful but the client does not need to leave the current page
-    res.sendStatus(204)
-  })
+    const updatedCourse = await dao.updateCourse(id, course)
+    res.json(updatedCourse)
+  }
 
   //- Delete a course
-  // app.delete("/api/courses/:cid", (req, res) => {
-  //   const { cid } = req.params
-  //   Database.courses = Database.courses.filter((c) => c._id !== cid)
-  //   //! HTTP 204 No Content status code indicates that a request has been successful but the client does not need to leave the current page
-  //   res.sendStatus(204)
-  // })
-  app.delete("/api/courses/:cid", (req, res) => {
+  const deleteCourse = async (req, res) => {
     const { cid } = req.params
-    const courseToDelete = Database.courses.find((c) => c._id === cid)
-    if (!courseToDelete) {
-      res.status(404).json({ message: `Unable to delete the course with ID: ${id}` })
+    const deletedCourse = await dao.deleteCourse(cid)
+    if (!deletedCourse) {
+      res.status(404).json({ message: `Unable to delete the course with ID: ${cid}` })
       return
     }
-    Database.courses.splice(Database.courses.indexOf(courseToDelete), 1)
     res.sendStatus(200)
-  })
+  }
 
   //- Create new course
-  app.post("/api/courses", (req, res) => {
-    const course = { ...req.body, _id: new Date().getTime().toString() }
-    Database.courses.push(course)
-    res.send(course)
-  })
+  const createCourse = async (req, res) => {
+    const course = req.body
+    const newCourse = await dao.createCourse(course)
+    res.json(newCourse)
+  }
 
-  //- Get courses
-  app.get("/api/courses", (req, res) => {
-    const course = Database.courses
-    res.send(course)
-  })
+  //- Get all courses
+  const getAllCourses = async (req, res) => {
+    const courses = await dao.getAllCourses()
+    res.json(courses)
+  }
+
+  // Routes
+  app.get("/api/courses", getAllCourses)
+  app.post("/api/courses", createCourse)
+  app.put("/api/courses/:id", updateCourse)
+  app.delete("/api/courses/:cid", deleteCourse)
+  app.get("/api/courses/:cid", getCourseById)
 }
