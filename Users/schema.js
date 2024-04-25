@@ -1,4 +1,4 @@
-import mongoose from "mongoose" // load the mongoose library
+import mongoose, { Schema } from "mongoose" // load the mongoose library
 
 const userSchema = new mongoose.Schema( // create the schema
   {

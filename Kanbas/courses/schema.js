@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose, { Schema } from "mongoose"
 
 const courseSchema = new mongoose.Schema(
   {
@@ -8,6 +8,9 @@ const courseSchema = new mongoose.Schema(
     endDate: { type: String, required: true },
     department: { type: String },
     credit: { type: Number, required: true },
+    description: { type: String },
+    author: { type: Schema.Types.ObjectId, ref: "users", required: true },
+    student: [{ type: Schema.Types.ObjectId, ref: "users" }],
   },
   { collection: "courses" }
 )

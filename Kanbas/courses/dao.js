@@ -8,6 +8,11 @@ export const createCourse = (course) => {
   delete course._id // remove _id field just in case client sends it
   return courseModel.create(course)
 }
+// Create a new course by author
+export const createCourseByAuthor = (author, course) => {
+  delete course._id 
+  return courseModel.create({ ...course, author }) 
+}
 
 // UPDATE
 // Update a course by id
@@ -16,6 +21,9 @@ export const updateCourse = (courseId, course) => courseModel.updateOne({ _id: c
 // READ
 // Get all courses
 export const getAllCourses = () => courseModel.find()
+// Get all courses by author
+export const getCoursesByAuthor = (author) => courseModel.find({ author }) 
+export const getCoursesByStudent = (student) => courseModel.find({ student }) 
 // Get a course by id
 export const getCourseById = (courseId) => courseModel.findById(courseId)
 // Delete

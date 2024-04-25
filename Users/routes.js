@@ -36,22 +36,6 @@ export default function UserRoutes(app) {
     const status = await dao.updateUser(userId, req.body)
     req.session.currentUser = await dao.findUserById(userId)
     res.json(status)
-    // try {
-    //   const { userId } = req.params
-    //   const updateResult = await dao.updateUser(userId, req.body)
-    //   if (updateResult.matchedCount === 0) {
-    //     return res.status(404).send("User not found")
-    //   }
-    //   if (updateResult.modifiedCount === 0) {
-    //     return res.status(304).send("No changes made to the user.")
-    //   }
-    //   const updatedUser = await dao.findUserById(req.params.id) // Fetch the updated user if needed
-    //   req.session.currentUser = await dao.findUserById(userId) // Update the session information
-    //   res.json(updatedUser)
-    // } catch (error) {
-    //   console.error("Error updating user:", error)
-    //   res.status(500).send("Error updating user")
-    // }
   }
 
   const signup = async (req, res) => {
@@ -60,7 +44,7 @@ export default function UserRoutes(app) {
     console.log(`User found: ${user}`)
     if (user) {
       console.log(`Username ${req.body.username} already taken`)
-      return res.status(400).json({ message: "Username already taken" }) // Ensure to return here
+      return res.status(400).json({ message: "Username already taken" })
     }
     try {
       const currentUser = await dao.createUser(req.body)
@@ -79,7 +63,7 @@ export default function UserRoutes(app) {
 
   const signin = async (req, res) => {
     const { username, password } = req.body
-    const currentUser = await dao.findUserByCredentials(username, password)
+    const currentUser = await dao.findUserByCredentials(username.trim(), password.trim())
     console.log("🚀 ~ signin ~ currentUser:", currentUser)
     if (currentUser) {
       req.session["currentUser"] = currentUser
