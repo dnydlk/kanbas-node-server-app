@@ -13,7 +13,8 @@ import UserRoutes from "./Users/routes.js"
 import "dotenv/config"
 import QuizRoutes from "./Kanbas/quizzes/routes.js"
 
-const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
+// const CONNECTION_STRING = process.env.DB_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kanbas"
+const CONNECTION_STRING = "mongodb://127.0.0.1:27017/kanbas"
 // Connect to the kanbas MongoDB database
 mongoose.connect(CONNECTION_STRING)
 // todo: Connect to a remote machine hosted by Mongo's Atlas could service
@@ -23,8 +24,8 @@ const app = express()
 app.use(
   cors({
     credentials: true, // support cookies
-    // origin: "http://localhost:3000", // restrict cross-origin resource sharing to the react application
-    origin: process.env.FRONTEND_URL,
+    origin: "http://localhost:3000", // restrict cross-origin resource sharing to the react application
+    // origin: process.env.FRONTEND_URL,
   })
 )
 const sessionOptions = {
